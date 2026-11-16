@@ -1,0 +1,224 @@
+:root {
+  --size: min(76vmin, 520px);
+  --ink: #f5f7fb;
+  --ink-dim: #8b97ad;
+  --accent: #ff4d5e;
+  --ok: #4ade80;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 32px 20px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 18%, #1c2536 0%, #0a0d14 55%, #06080c 100%);
+  color: var(--ink);
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 4vmin, 36px);
+}
+
+.clock {
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+}
+
+.bezel {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 140deg, #3a445c, #121722, #3a445c, #0d1119, #3a445c);
+  box-shadow:
+    0 36px 70px -22px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+.face {
+  position: absolute;
+  inset: 3.2%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 34%, #1b2334, #0d1119 72%);
+  box-shadow:
+    inset 0 0 64px rgba(0, 0, 0, 0.7),
+    inset 0 2px 0 rgba(255, 255, 255, 0.07);
+}
+
+.tick {
+  position: absolute;
+  inset: 0;
+  transform: rotate(calc(var(--i) * 6deg));
+}
+
+.tick::before {
+  content: "";
+  position: absolute;
+  top: 3.4%;
+  left: 50%;
+  width: 1px;
+  height: 2.1%;
+  border-radius: 1px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.tick--major::before {
+  width: 3px;
+  height: 4.2%;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.numeral {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: calc(var(--size) * 0.072);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(245, 247, 251, 0.88);
+  transform:
+    translate(-50%, -50%)
+    rotate(calc(var(--n) * 30deg))
+    translateY(calc(var(--size) * -0.362))
+    rotate(calc(var(--n) * -30deg));
+}
+
+.hands {
+  position: absolute;
+  inset: 0;
+}
+
+.hand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: 50% 100%;
+  transform: rotate(var(--angle, 0deg));
+  border-radius: 999px;
+}
+
+.hand--hour {
+  --w: calc(var(--size) * 0.019);
+  width: var(--w);
+  margin-left: calc(var(--w) / -2);
+  height: 26%;
+  background: linear-gradient(to top, #c7d2e4, #ffffff);
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.55);
+}
+
+.hand--minute {
+  --w: calc(var(--size) * 0.013);
+  width: var(--w);
+  margin-left: calc(var(--w) / -2);
+  height: 36%;
+  background: linear-gradient(to top, #dbe3f0, #ffffff);
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.55);
+}
+
+.hand--second {
+  --w: calc(var(--size) * 0.007);
+  width: var(--w);
+  margin-left: calc(var(--w) / -2);
+  height: 42%;
+  background: var(--accent);
+  box-shadow: 0 0 16px rgba(255, 77, 94, 0.65);
+}
+
+.hand--second::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 100%;
+  height: 30%;
+  transform: translateX(-50%);
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.cap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--size) * 0.036);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #8b97ad);
+  box-shadow:
+    0 0 0 3px rgba(10, 13, 20, 0.92),
+    0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+.readout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.time {
+  font-size: clamp(1.6rem, 4.4vmin, 2.6rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.meta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  color: var(--ink-dim);
+  transition: color 0.3s ease;
+}
+
+.status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.status[data-state="ok"] {
+  color: var(--ok);
+}
+
+.status[data-state="error"] {
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status {
+    transition: none;
+  }
+}

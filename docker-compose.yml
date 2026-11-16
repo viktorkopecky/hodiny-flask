@@ -1,0 +1,10 @@
+services:
+  hodiny:
+    build: .
+    image: hodiny:latest
+    container_name: hodiny
+    ports:
+      - "8000:8000"
+    environment:
+      TZ: Europe/Prague
+    restart: unless-stopped

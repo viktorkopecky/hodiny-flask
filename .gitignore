@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Virtuální prostředí
+.venv/
+venv/
+env/
+
+# Flask
+instance/
+*.db
+*.sqlite3
+
+# Nástroje
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Editory a operační systém
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Lokální konfigurace
+.env
