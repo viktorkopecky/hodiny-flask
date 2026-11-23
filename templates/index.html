@@ -1,45 +1,156 @@
 <!DOCTYPE html>
-<html lang="cs">
+{% set h = state.hour %}
+{% if h >= 5 and h < 8 %}{% set daypart = "dawn" %}
+{% elif h >= 8 and h < 17 %}{% set daypart = "day" %}
+{% elif h >= 17 and h < 20 %}{% set daypart = "dusk" %}
+{% else %}{% set daypart = "night" %}{% endif %}
+<html lang="cs" data-daypart="{{ daypart }}" data-dial="neon" data-hands="classic" data-ui="glass">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hodiny – čas serveru</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%230d1119' stroke='%23f5f7fb' stroke-width='4'/%3E%3Cpath d='M32 32V16M32 32l11 7' stroke='%23f5f7fb' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <title>Vice Clock – GTA VI hodiny</title>
+  <meta name="description" content="Analogové hodiny ve stylu Vice City se serverovým časem, sběrem peněz a obchodem s vylepšeními.">
+  <meta name="theme-color" content="#120b24">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23120b24'/%3E%3Ccircle cx='32' cy='32' r='23' fill='none' stroke='%23ff4fa3' stroke-width='5'/%3E%3Cpath d='M32 17v16l11 6' fill='none' stroke='%2329e7e0' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <script>
+    (function () {
+      var root = document.documentElement;
+      root.classList.add("js");
+      var saved = {
+        dial: ["neon", "gold", "chrome", "blood"],
+        hands: ["classic", "glow", "gold-hands"],
+        ui: ["glass", "noir", "minimal"],
+        fx: ["none", "scanlines", "bloom"]
+      };
+      try {
+        Object.keys(saved).forEach(function (key) {
+          var value = localStorage.getItem("gtaclock." + key);
+          if (value && saved[key].indexOf(value) !== -1) root.dataset[key] = value;
+        });
+      } catch (error) {
+        /* soukromý režim bez localStorage */
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <main class="stage">
-    <div class="clock" role="img" aria-label="Analogové hodiny zobrazující čas serveru">
-      <div class="bezel"></div>
-      <div class="face">
-        {% for i in range(60) %}
-        <span class="tick{% if i % 5 == 0 %} tick--major{% endif %}" style="--i: {{ i }}"></span>
-        {% endfor %}
+  <div class="city" aria-hidden="true">
+    <div class="city__sky"></div>
+    <div class="city__sun"></div>
+    <div class="stars" id="stars"></div>
+    <div class="skyline skyline--far" id="skyline-far"></div>
+    <div class="skyline skyline--near" id="skyline-near"></div>
+    <div class="water"></div>
+    <div class="palm palm--left"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="palm palm--right"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="city__grid"></div>
+  </div>
 
-        <div class="numerals">
+  <header class="hud">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true"><span></span></span>
+      <div class="brand__text">
+        <h1 class="brand__name">VICE <em>CLOCK</em></h1>
+        <p class="brand__sub">GTA VI · čas serveru</p>
+      </div>
+    </div>
+    <div class="hud__tools">
+      <div class="wallet" id="wallet" aria-live="polite">
+        <span class="wallet__bill" aria-hidden="true">$</span>
+        <span class="wallet__amount" id="money-value">0</span>
+        <span class="wallet__currency">GTA$</span>
+      </div>
+      <button class="hud-btn" id="shop-btn" type="button" aria-haspopup="dialog" aria-controls="shop" aria-label="Otevřít obchod (klávesa B)" title="Obchod (B)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16l-1.2 11H5.2L4 9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 9V6.8a3.5 3.5 0 0 1 7 0V9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Obchod</span>
+      </button>
+      <button class="hud-btn hud-btn--icon" id="mute-btn" type="button" aria-pressed="false" aria-label="Ztlumit zvuk" title="Zvuk (M)">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 9.5h3.2L12 5.6v12.8L7.2 14.5H4z" fill="currentColor"/>
+          <path class="icon-waves" d="M15.4 8.6a5 5 0 0 1 0 6.8M18.1 6a8.6 8.6 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path class="icon-slash" d="M15 6.5l6 11" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="clock-wrap">
+      <div class="aura" aria-hidden="true"></div>
+      <div class="clock" id="clock" role="group" aria-label="Hodiny ukazující čas serveru">
+        <div class="bezel" aria-hidden="true"></div>
+        <div class="dial" aria-hidden="true"></div>
+
+        <div class="face" aria-hidden="true">
+          {% for i in range(60) %}
+          <span class="tick{% if i % 5 == 0 %} tick--major{% endif %}" style="--i: {{ i }}"></span>
+          {% endfor %}
           {% for n in range(1, 13) %}
           <span class="numeral" style="--n: {{ n }}">{{ n }}</span>
           {% endfor %}
+          <span class="dial__brand">VICE CITY</span>
+          <span class="dial__sub">GTA VI · SERVER TIME</span>
         </div>
 
-        <div class="hands">
+        <div class="hands" aria-hidden="true">
           <div class="hand hand--hour" id="hand-hour" style="--angle: {{ state.angles.hour }}deg"></div>
           <div class="hand hand--minute" id="hand-minute" style="--angle: {{ state.angles.minute }}deg"></div>
           <div class="hand hand--second" id="hand-second" style="--angle: {{ state.angles.second }}deg"></div>
-          <div class="cap"></div>
         </div>
+
+        <div class="cap" aria-hidden="true"></div>
+        <div class="glass" aria-hidden="true"></div>
+        <div class="pulse" id="pulse" aria-hidden="true"></div>
       </div>
     </div>
 
-    <div class="readout">
+    <section class="panel" aria-label="Digitální odečet času serveru">
+      <p class="panel__caption">server time · vice city</p>
       <div class="time" id="time-text">{{ "%02d:%02d:%02d" | format(state.hour, state.minute, state.second) }}</div>
       <div class="meta">
         <span id="date-text">{{ state.date }}</span>
+        <span class="meta__sep" aria-hidden="true">·</span>
         <span id="tz-text">{{ state.timezone }}</span>
       </div>
       <div class="status" id="status" data-state="wait"><span>čekám na server</span></div>
+    </section>
+
+    <div class="controls">
+      <button class="chip chip--primary" id="btn-drop" type="button">Shodit peníze <small>mezerník</small></button>
+      <button class="chip" id="btn-shop" type="button">Otevřít obchod <small>B</small></button>
     </div>
+    <p class="hint">Klikej na bankovky a sbírej GTA$ · B obchod · M zvuk · Esc zavře okno</p>
   </main>
+
+  <div class="cash-layer" id="cash-layer"></div>
+  <div class="float-layer" id="float-layer" aria-hidden="true"></div>
+
+  <div class="shop" id="shop" aria-hidden="true">
+    <div class="shop__backdrop" data-close="true"></div>
+    <div class="shop__card" role="dialog" aria-modal="true" aria-labelledby="shop-title">
+      <button class="shop__close" id="shop-close" type="button" aria-label="Zavřít obchod">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <header class="shop__head">
+        <div>
+          <p class="shop__eyebrow">Vice City · Noční trh</p>
+          <h2 class="shop__title" id="shop-title">OBCHOD S VYLEPŠENÍMI</h2>
+        </div>
+        <div class="shop__wallet"><span aria-hidden="true">$</span> <b id="shop-money">0</b> GTA$</div>
+      </header>
+      <nav class="shop__tabs" id="shop-tabs" aria-label="Kategorie vylepšení">
+        <button type="button" data-tab="dial" class="is-active">Ciferník</button>
+        <button type="button" data-tab="hands">Ručičky</button>
+        <button type="button" data-tab="ui">Rozhraní</button>
+        <button type="button" data-tab="extras">Bonusy</button>
+      </nav>
+      <div class="shop__items" id="shop-items"></div>
+      <footer class="shop__foot" id="shop-foot"></footer>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script id="bootstrap" type="application/json">{{ state | tojson }}</script>
   <script src="{{ url_for('static', filename='clock.js') }}"></script>

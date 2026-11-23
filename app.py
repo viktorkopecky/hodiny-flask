@@ -1,4 +1,4 @@
-"""Analogové hodiny zobrazující čas serveru."""
+"""Vice Clock – analogové hodiny se serverovým časem ve stylu GTA VI."""
 
 from __future__ import annotations
 

@@ -1,0 +1,46 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e62]:
+    - generic [ref=e65]:
+      - heading "PokéClock" [level=1] [ref=e66]
+      - paragraph [ref=e67]: čas serveru · komunitní centrum
+    - generic [ref=e68]:
+      - generic "Počet chycených Pokémonů" [ref=e69]:
+        - generic [ref=e71]: "0"
+        - generic [ref=e72]: chyceni
+      - button "Ztlumit zvuk" [ref=e73] [cursor=pointer]
+  - main [ref=e78]:
+    - generic [ref=e79]:
+      - button "Změnit Pokémona – právě Pikachu (klávesa P)" [ref=e81] [cursor=pointer]:
+        - figure
+        - figure
+        - figure
+        - figure
+        - figure
+      - group "Poké Ball hodiny ukazující čas serveru" [ref=e82]:
+        - generic [aria-hidden]:
+          - generic: "1"
+          - generic: "2"
+          - generic: "3"
+          - generic: "4"
+          - generic: "5"
+          - generic: "6"
+          - generic: "7"
+          - generic: "8"
+          - generic: "9"
+          - generic: "10"
+          - generic: "11"
+          - generic: "12"
+        - button "Hodit Poké Ball (mezerník)" [ref=e87] [cursor=pointer]
+    - region "Digitální odečet času serveru" [ref=e90]:
+      - paragraph [ref=e91]: server time
+      - generic [ref=e92]: 09:44:57
+      - generic [ref=e93]:
+        - generic [ref=e94]: 16.11.2026
+        - generic [aria-hidden] [ref=e95]: ·
+        - generic [ref=e96]: CET
+      - generic [ref=e97]: synchronizováno se serverem
+    - generic [ref=e99]:
+      - button "Hodit Poké Ball" [ref=e100] [cursor=pointer]
+      - button "Změnit Pokémona" [ref=e101] [cursor=pointer]
+    - paragraph [ref=e102]: Mezerník hodí ball · P vymění Pokémona · M ztlumí zvuk
+  - status

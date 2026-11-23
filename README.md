@@ -1,6 +1,14 @@
-# Hodiny
+# Vice Clock (GTA VI)
 
-Jednoduchá Flask aplikace, která na úvodní stránce vykreslí **čas serveru jako analogový ciferník** – vteřinovou, minutovou a hodinovou ručičku, číselník, datum, časovou zónu a digitální odečet. Ručičky se plynule dopočítávají v prohlížeči a každých 15 s se znovu synchronizují s backendem přes `/api/time`, takže zobrazený čas odpovídá serveru, ne hodinám návštěvníka.
+Flask aplikace s **analogovými hodinami ve stylu Vice City**. Ručičky ukazují čas serveru a plynule se dopočítávají v prohlížeči; každých 15 s se znovu synchronizují přes `/api/time`. Kolem hodin propadají bankovky – hráč je sbírá, získává GTA$ a v obchodě si kupuje vylepšení vzhledu hodin a rozhraní.
+
+## Hra
+
+- **Peníze:** bankovky v hodnotách 50 / 100 / 500 / 1000 GTA$ se objevují samy od sebe (~každé 2–6 s) nebo po stisku „Shodit peníze" (12 s cooldown). Po kliknutí se peníze připíšou na účet. Bankovka zmizí, pokud ji nechytíte do ~9 s.
+- **Obchod (`B`):** čtyři záložky – ciferník, ručičky, rozhraní a bonusy. Zakoupené předměty lze nasadit/zase vyměnit; efekty lze vypnout. Bonusy (Money Magnet, Double Dip) se po koupi aktivují trvale.
+- **Vzhled:** 4 ciferníky, 3 sady ručiček, 3 skiny HUD a 2 obrazovkové efekty. Každá změna se okamžitě projeví na hodinách i v rozhraní.
+- **Ukládání:** peníze, vlastněné předměty, nasazené vylepšení a stav zvuku se ukládají do `localStorage` prohlížeče pod prefixem `gtaclock.`. Žádný účet ani serverová databáze není potřeba.
+- **Ovládání:** `mezerník` shodí peníze, `B` otevře obchod, `M` přepne zvuk, `Esc` zavře obchod. Kliknutím na bankovku ji seberete.
 
 ## Struktura projektu
 
@@ -8,10 +16,10 @@ Jednoduchá Flask aplikace, která na úvodní stránce vykreslí **čas serveru
 hodiny/
 ├── app.py               # Flask aplikace, výpočet úhlů ručiček, API
 ├── templates/
-│   └── index.html       # ciferník vykreslený na serveru (Jinja)
+│   └── index.html       # HUD, ciferník, vrstva peněz a obchod (Jinja)
 ├── static/
-│   ├── style.css        # vzhled ciferníku a ručiček
-│   └── clock.js         # plynulý pohyb ručiček + synchronizace se serverem
+│   ├── style.css        # Vice City vizuál, varianty vzhledu, animace
+│   └── clock.js         # čas, spawn peněz, obchod, uložiště, zvuky
 ├── requirements.txt     # Flask, gunicorn, tzdata
 ├── Dockerfile
 ├── docker-compose.yml
@@ -48,7 +56,7 @@ Aplikace poběží na <http://127.0.0.1:5000>.
 
 | Metoda | Cesta       | Popis                                                        |
 | ------ | ----------- | ------------------------------------------------------------ |
-| GET    | `/`         | Úvodní stránka s analogovým ciferníkem                        |
+| GET    | `/`         | Úvodní stránka s hodinami, penězi a obchodem                  |
 | GET    | `/api/time` | Čas serveru v JSON: `iso`, `epoch_ms`, `hour`, `minute`, `second`, `date`, `timezone`, `angles` |
 | GET    | `/healthz`  | Kontrola běhu, vrací `{"status": "ok"}`                       |
 

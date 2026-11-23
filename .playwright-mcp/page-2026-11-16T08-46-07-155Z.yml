@@ -1,0 +1,46 @@
+- generic [ref=f1e1]:
+  - banner [ref=f1e62]:
+    - generic [ref=f1e65]:
+      - heading "PokéClock" [level=1] [ref=f1e66]
+      - paragraph [ref=f1e67]: čas serveru · komunitní centrum
+    - generic [ref=f1e68]:
+      - generic "Počet chycených Pokémonů" [ref=f1e69]:
+        - generic [ref=f1e71]: "0"
+        - generic [ref=f1e72]: chyceni
+      - button "Ztlumit zvuk" [ref=f1e73] [cursor=pointer]
+  - main [ref=f1e78]:
+    - generic [ref=f1e79]:
+      - button "Změnit Pokémona – právě Bulbasaur (klávesa P)" [active] [ref=f1e103] [cursor=pointer]:
+        - figure
+        - figure
+        - figure
+        - figure
+        - figure
+      - group "Poké Ball hodiny ukazující čas serveru" [ref=f1e82]:
+        - generic [aria-hidden]:
+          - generic: "1"
+          - generic: "2"
+          - generic: "3"
+          - generic: "4"
+          - generic: "5"
+          - generic: "6"
+          - generic: "7"
+          - generic: "8"
+          - generic: "9"
+          - generic: "10"
+          - generic: "11"
+          - generic: "12"
+        - button "Hodit Poké Ball (mezerník)" [ref=f1e87] [cursor=pointer]
+    - region "Digitální odečet času serveru" [ref=f1e90]:
+      - paragraph [ref=f1e91]: server time
+      - generic [ref=f1e92]: 09:46:06
+      - generic [ref=f1e93]:
+        - generic [ref=f1e94]: 16.11.2026
+        - generic [aria-hidden] [ref=f1e95]: ·
+        - generic [ref=f1e96]: CET
+      - generic [ref=f1e97]: synchronizováno se serverem
+    - generic [ref=f1e99]:
+      - button "Hodit Poké Ball" [ref=f1e100] [cursor=pointer]
+      - button "Změnit Pokémona" [ref=f1e101] [cursor=pointer]
+    - paragraph [ref=f1e102]: Mezerník hodí ball · P vymění Pokémona · M ztlumí zvuk
+  - status: Ahoj, Bulbasaur!
