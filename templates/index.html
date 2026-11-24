@@ -17,14 +17,16 @@
       var root = document.documentElement;
       root.classList.add("js");
       var saved = {
-        dial: ["neon", "gold", "chrome", "blood"],
-        hands: ["classic", "glow", "gold-hands"],
-        ui: ["glass", "noir", "minimal"],
+        dial: ["neon", "gold", "chrome", "blood", "prestige"],
+        hands: ["classic", "glow", "gold-hands", "rebirth"],
+        ui: ["glass", "noir", "minimal", "royal"],
         fx: ["none", "scanlines", "bloom"]
       };
       try {
+        var stored = JSON.parse(localStorage.getItem("gtaclock.profile") || "null");
+        var equipped = stored && stored.equipped ? stored.equipped : {};
         Object.keys(saved).forEach(function (key) {
-          var value = localStorage.getItem("gtaclock." + key);
+          var value = equipped[key] || localStorage.getItem("gtaclock." + key);
           if (value && saved[key].indexOf(value) !== -1) root.dataset[key] = value;
         });
       } catch (error) {
@@ -56,6 +58,15 @@
       </div>
     </div>
     <div class="hud__tools">
+      <div class="combo" id="combo" aria-live="polite">
+        <span class="combo__x" aria-hidden="true">×<b id="combo-value">2</b></span>
+        <span class="combo__label">combo</span>
+      </div>
+      <div class="rank" id="rank" title="Úroveň a násobek z rebirthů">
+        <span class="rank__level" id="level-value">Lv 1</span>
+        <span class="rank__mult" id="mult-value">×1</span>
+        <span class="rank__rebirth" id="rebirth-value">R0</span>
+      </div>
       <div class="wallet" id="wallet" aria-live="polite">
         <span class="wallet__bill" aria-hidden="true">$</span>
         <span class="wallet__amount" id="money-value">0</span>
@@ -114,13 +125,33 @@
         <span id="tz-text">{{ state.timezone }}</span>
       </div>
       <div class="status" id="status" data-state="wait"><span>čekám na server</span></div>
+      <div class="progress">
+        <div class="progress__row">
+          <span id="rebirth-label">Rebirth 1</span>
+          <span id="rebirth-progress-text">0 / 25 000 GTA$</span>
+        </div>
+        <div class="progress__track"><div class="progress__fill progress__fill--rebirth" id="rebirth-fill" style="width: 0%"></div></div>
+        <div class="progress__row">
+          <span id="xp-label">Úroveň 1</span>
+          <span id="xp-progress-text">0 / 120 XP</span>
+        </div>
+        <div class="progress__track"><div class="progress__fill progress__fill--xp" id="xp-fill" style="width: 0%"></div></div>
+      </div>
     </section>
+
+    <div class="stats" aria-label="Statistiky hry">
+      <span>Sebráno <b id="stat-collected">0</b></span>
+      <span>Celkem <b id="stat-earned">0</b> GTA$</span>
+      <span>Nejlepší combo <b id="stat-combo">0</b></span>
+      <span>Zlaté <b id="stat-jackpots">0</b></span>
+    </div>
 
     <div class="controls">
       <button class="chip chip--primary" id="btn-drop" type="button">Shodit peníze <small>mezerník</small></button>
-      <button class="chip" id="btn-shop" type="button">Otevřít obchod <small>B</small></button>
+      <button class="chip" id="btn-shop" type="button">Obchod <small>B</small></button>
+      <button class="chip chip--rebirth" id="btn-rebirth" type="button" aria-haspopup="dialog" aria-controls="rebirth">Rebirth <small>R</small></button>
     </div>
-    <p class="hint">Klikej na bankovky a sbírej GTA$ · B obchod · M zvuk · Esc zavře okno</p>
+    <p class="hint">Klikej na bankovky a sbírej GTA$ · R rebirth · B obchod · M zvuk · Esc zavře okno</p>
   </main>
 
   <div class="cash-layer" id="cash-layer"></div>
@@ -144,9 +175,37 @@
         <button type="button" data-tab="hands">Ručičky</button>
         <button type="button" data-tab="ui">Rozhraní</button>
         <button type="button" data-tab="extras">Bonusy</button>
+        <button type="button" data-tab="badges">Odznaky</button>
       </nav>
       <div class="shop__items" id="shop-items"></div>
       <footer class="shop__foot" id="shop-foot"></footer>
+    </div>
+  </div>
+
+  <div class="rebirth" id="rebirth" aria-hidden="true">
+    <div class="rebirth__backdrop" data-close="true"></div>
+    <div class="rebirth__card" role="dialog" aria-modal="true" aria-labelledby="rebirth-title">
+      <button class="rebirth__close" id="rebirth-close" type="button" aria-label="Zavřít rebirth">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <p class="rebirth__eyebrow">Nový život · Vice City</p>
+      <h2 class="rebirth__title" id="rebirth-title">REBIRTH</h2>
+      <p class="rebirth__lead">Necháš vše za sebou a začneš znovu od nuly. Zato si odneseš trvalý násobek výdělku a prestižní vzhledy.</p>
+      <div class="rebirth__numbers">
+        <div><span>Dosavadní násobek</span><b id="rebirth-mult">×1</b></div>
+        <div><span>Nový násobek</span><b id="rebirth-next">×1.5</b></div>
+        <div><span>Rebirthy</span><b id="rebirth-count">0 → 1</b></div>
+      </div>
+      <div class="rebirth__progress">
+        <div class="progress__row"><span>Podmínka rebirthu</span><span id="rebirth-modal-progress">0 / 25 000 GTA$</span></div>
+        <div class="progress__track"><div class="progress__fill progress__fill--rebirth" id="rebirth-modal-fill" style="width: 0%"></div></div>
+      </div>
+      <ul class="rebirth__list">
+        <li>Ztratíš peníze, zakoupený vzhled a rozjeté combo.</li>
+        <li>Zůstanou ti byznysy, odznaky, úroveň a počítadlo rebirthů.</li>
+        <li>Odemkneš prestižní ciferník (R1), ručičky (R3) a HUD (R5).</li>
+      </ul>
+      <button class="rebirth__confirm" id="rebirth-confirm" type="button">Provést rebirth</button>
     </div>
   </div>
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import time
 from datetime import datetime, tzinfo
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -11,6 +12,7 @@ from flask import Flask, jsonify, render_template
 app = Flask(__name__)
 
 DEFAULT_TZ = "Europe/Prague"
+STARTED_AT = time.monotonic()
 
 
 def server_timezone() -> tzinfo:
@@ -45,10 +47,20 @@ def snapshot(moment: datetime) -> dict[str, object]:
         "hour": moment.hour,
         "minute": moment.minute,
         "second": moment.second,
+        "time": moment.strftime("%H:%M:%S"),
         "date": moment.strftime("%d.%m.%Y"),
         "timezone": moment.tzname() or "local",
         "angles": clock_angles(moment),
     }
+
+
+@app.after_request
+def security_headers(response):
+    """Preventivní hlavičky pro všechny odpovědi aplikace."""
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["X-Frame-Options"] = "DENY"
+    return response
 
 
 @app.get("/")
@@ -58,9 +70,11 @@ def index():
 
 @app.get("/api/time")
 def api_time():
-    return jsonify(snapshot(now()))
+    response = jsonify(snapshot(now()))
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 @app.get("/healthz")
 def healthz():
-    return jsonify(status="ok")
+    return jsonify(status="ok", uptime_s=round(time.monotonic() - STARTED_AT, 1))
